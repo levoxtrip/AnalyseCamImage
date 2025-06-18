@@ -9,50 +9,57 @@ body {
 }
 
 #info-panel {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    right: 20px;
+    position: relative;  /* Changed from fixed to relative */
+    top: 10px;           /* Distance from top of document */
+    margin: 0 10px;      /* Left and right margins */
     background: rgba(0, 0, 0, 0.8);
-    padding: 15px;
-    border-radius: 10px;
+    padding: 10px;
+    border-radius: 8px;
     z-index: 100;
     backdrop-filter: blur(10px);
     
     /* Horizontal layout */
     display: flex;
-    align-items: center;  /* Vertically center items */
-    gap: 15px;           /* Space between items */
+    align-items: center;
+    gap: 10px;
 }
 
 .info {
     color: white;
-    font-size: 14px;
-    /* Remove display: flex from individual items */
+    font-size: 12px;
 }
 
 .color-field {
-    width: 40px;
-    height: 40px;
-    border: 3px solid white;
+    width: 30px;
+    height: 30px;
+    border: 2px solid white;
     border-radius: 50%;
-    /* Remove margin since we're using gap */
-    flex-shrink: 0;  /* Prevent color field from shrinking */
+    flex-shrink: 0;
 }
 
-/* Mobile responsive */
+/* iPhone SE and similar small screens */
+@media (max-width: 375px) {
+    #info-panel {
+        top: 5px;
+        margin: 0 5px;
+        padding: 8px;
+        gap: 8px;
+    }
+    
+    .info {
+        font-size: 11px;
+    }
+    
+    .color-field {
+        width: 25px;
+        height: 25px;
+    }
+}
+
+/* General mobile responsive */
 @media (max-width: 600px) {
     #info-panel {
         padding: 10px;
         gap: 10px;
-    }
-    
-    .info {
-        font-size: 12px;
-    }
-    
-    .color-field {
-        width: 30px;
-        height: 30px;
     }
 }
