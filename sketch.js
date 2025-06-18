@@ -85,8 +85,7 @@ function updateColorInfo(color){
     const r = red(color);
     const g = green(color);
     const b = blue(color);
-
-    document.getElementById('color-info').textContent = `R${R},G${g},B${b},`
+     document.getElementById('color-info').textContent = `R: ${Math.round(r)}, G: ${Math.round(g)}, B: ${Math.round(b)}`;
      document.getElementById('color-field').style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
 
 }

@@ -10,7 +10,7 @@ body {
 
 #info-panel {
     position: relative;  /* Changed from fixed to relative */
-    top: 10px;           /* Distance from top of document */
+      /* Distance from top of document */
     margin: 0 10px;      /* Left and right margins */
     background: rgba(0, 0, 0, 0.8);
     padding: 10px;
@@ -25,6 +25,7 @@ body {
 }
 
 .info {
+    right:20px;
     color: white;
     font-size: 12px;
 }
