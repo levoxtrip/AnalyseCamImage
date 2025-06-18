@@ -42,7 +42,13 @@ function draw(){
 
     if(analyzing){
         analyzeCenter();
+
+
+        drawCrossHair();
     }
+
+
+    
 }
 
 function startCamera(){
@@ -76,10 +82,30 @@ function analyzeCenter(){
 
 
 function updateColorInfo(color){
-    document.getElementById('color-info').textContent = `${color}`
+    const r = red(color);
+    const g = green(color);
+    const b = blue(color);
 
+    document.getElementById('color-info').textContent = `${color}`
+     document.getElementById('color-field').style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
 
 }
+
+function drawCrossHair(){
+
+    push();
+    stroke(255);
+    strokeWeight(2);
+    noFill();
+
+
+     let centerX = width / 2;
+    let centerY = height / 2;
+    
+    circle(centerX, centerY, 30);
+
+}
+
 
 
 function calculateCameraScale() {
