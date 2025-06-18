@@ -9,11 +9,11 @@ body {
 }
 
 #info-panel {
-    position: relative;  /* Changed from fixed to relative */
-      /* Distance from top of document */
-    margin: 0 10px;      /* Left and right margins */
-    background: rgba(0, 0, 0, 0.8);
-    padding: 10px;
+    position: relative;
+    top: 10px;           /* Added proper top spacing */
+    margin: 0 10px;
+    background: rgba(0, 0, 0, 0.9);  /* More opaque for better readability */
+    padding: 12px;
     border-radius: 8px;
     z-index: 100;
     backdrop-filter: blur(10px);
@@ -21,24 +21,46 @@ body {
     /* Horizontal layout */
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
 .info {
-    right:20px;
     color: white;
-    font-size: 12px;
+    font-size: 14px;
+    font-weight: 500;    /* Slightly bolder for better visibility */
+    line-height: 1.2;
 }
 
 .color-field {
-    width: 30px;
-    height: 30px;
+    /* REMOVED position: fixed - keep in flex layout */
+    width: 35px;
+    height: 35px;
     border: 2px solid white;
     border-radius: 50%;
     flex-shrink: 0;
 }
 
-/* iPhone SE and similar small screens */
+/* General mobile responsive - MOVED BEFORE specific iPhone SE rules */
+@media (max-width: 600px) {
+    #info-panel {
+        top: 8px;
+        margin: 0 8px;
+        padding: 10px;
+        gap: 10px;
+        background: rgba(0, 0, 0, 0.95); /* Even more opaque on mobile */
+    }
+    
+    .info {
+        font-size: 13px;
+    }
+    
+    .color-field {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+/* iPhone SE and similar small screens - MORE SPECIFIC rules */
 @media (max-width: 375px) {
     #info-panel {
         top: 5px;
@@ -48,19 +70,33 @@ body {
     }
     
     .info {
-        font-size: 11px;
+        font-size: 12px;     /* Increased from 11px */
+        font-weight: 600;    /* Bolder on small screens */
     }
     
     .color-field {
-        width: 25px;
-        height: 25px;
+        width: 28px;
+        height: 28px;
+        border-width: 2px;
     }
 }
 
-/* General mobile responsive */
-@media (max-width: 600px) {
+/* Extra small screens (very old phones) */
+@media (max-width: 320px) {
     #info-panel {
-        padding: 10px;
-        gap: 10px;
+        top: 3px;
+        margin: 0 3px;
+        padding: 6px;
+        gap: 6px;
+    }
+    
+    .info {
+        font-size: 11px;
+        font-weight: bold;
+    }
+    
+    .color-field {
+        width: 24px;
+        height: 24px;
     }
 }
