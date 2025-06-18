@@ -1,5 +1,5 @@
 let capture;
-let isReadCamera = true;
+let isRearCamera = true;
 let analyzing = true;
 let frozen = false;
 
