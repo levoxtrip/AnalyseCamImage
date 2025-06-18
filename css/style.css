@@ -10,15 +10,15 @@ body {
 
 #info-panel {
     position: relative;
-    top: 10px;           /* Added proper top spacing */
+    top: 10px;
     margin: 0 10px;
-    background: rgba(0, 0, 0, 0.9);  /* More opaque for better readability */
+    background: rgba(0, 0, 0, 0.9);
     padding: 12px;
     border-radius: 8px;
     z-index: 100;
     backdrop-filter: blur(10px);
     
-    /* Horizontal layout */
+    /* Horizontal layout for text only */
     display: flex;
     align-items: center;
     gap: 12px;
@@ -27,27 +27,31 @@ body {
 .info {
     color: white;
     font-size: 14px;
-    font-weight: 500;    /* Slightly bolder for better visibility */
+    font-weight: 500;
     line-height: 1.2;
 }
 
 .color-field {
-    /* REMOVED position: fixed - keep in flex layout */
+    position: fixed;
+    top: 10px;          /* Match info panel top */
+    right: 10px;        /* Fixed to top-right */
     width: 35px;
     height: 35px;
     border: 2px solid white;
     border-radius: 50%;
-    flex-shrink: 0;
+    background: rgba(0, 0, 0, 0.9);  /* Same background as panel */
+    backdrop-filter: blur(10px);
+    z-index: 101;       /* Above info panel */
 }
 
-/* General mobile responsive - MOVED BEFORE specific iPhone SE rules */
+/* General mobile responsive */
 @media (max-width: 600px) {
     #info-panel {
         top: 8px;
         margin: 0 8px;
         padding: 10px;
         gap: 10px;
-        background: rgba(0, 0, 0, 0.95); /* Even more opaque on mobile */
+        background: rgba(0, 0, 0, 0.95);
     }
     
     .info {
@@ -55,12 +59,14 @@ body {
     }
     
     .color-field {
+        top: 8px;           /* Match info panel */
+        right: 8px;
         width: 32px;
         height: 32px;
     }
 }
 
-/* iPhone SE and similar small screens - MORE SPECIFIC rules */
+/* iPhone SE and similar small screens */
 @media (max-width: 375px) {
     #info-panel {
         top: 5px;
@@ -70,18 +76,20 @@ body {
     }
     
     .info {
-        font-size: 12px;     /* Increased from 11px */
-        font-weight: 600;    /* Bolder on small screens */
+        font-size: 12px;
+        font-weight: 600;
     }
     
     .color-field {
+        top: 5px;           /* Match info panel */
+        right: 5px;
         width: 28px;
         height: 28px;
         border-width: 2px;
     }
 }
 
-/* Extra small screens (very old phones) */
+/* Extra small screens */
 @media (max-width: 320px) {
     #info-panel {
         top: 3px;
@@ -96,6 +104,8 @@ body {
     }
     
     .color-field {
+        top: 3px;
+        right: 3px;
         width: 24px;
         height: 24px;
     }
