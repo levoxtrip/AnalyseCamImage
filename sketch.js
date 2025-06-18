@@ -52,9 +52,7 @@ function startCamera(){
 
     const constraints = {
         video: {
-            facingMode: isRearCamera ? "environment" : "user",
-            width: { ideal:windowWidth},
-            height: {ideal:windowHeight}
+            facingMode: isRearCamera ? "environment" : "user"
         }
     }
 
