@@ -63,7 +63,7 @@ function startCamera(){
     }
 
     capture = createCapture(constraints, () => {
-        document.getElementById('status').textContent = 'Camera can be used'
+        // document.getElementById('status').textContent = 'Camera can be used'
     });
     capture.hide();
 }
@@ -86,7 +86,7 @@ function updateColorInfo(color){
     const g = green(color);
     const b = blue(color);
 
-    document.getElementById('color-info').textContent = `${color}`
+    document.getElementById('color-info').textContent = `R${R},G${g},B${b},`
      document.getElementById('color-field').style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
 
 }
