@@ -5,4 +5,11 @@ body {
             font-family: Arial, sans-serif;
             overflow: hidden;
             touch-action: manipulation;
+            color:white;
 }
+
+.info{
+    color: white;
+
+}
+

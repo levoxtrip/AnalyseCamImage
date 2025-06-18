@@ -15,8 +15,13 @@ function setup(){
 }
 
 function draw(){
-    if(capture){
+    //loadedmetadata is web standart property and tells us if the camera is ready on the phone
+    if(capture && capture.loadedmetadata){
         image(capture,0,0,width,height);
+    }
+
+    if(analyzing){
+        analyzeCenter();
     }
 }
 
@@ -37,4 +42,23 @@ function startCamera(){
         document.getElementById('status').textContent = 'Camera can be used'
     });
     capture.hide();
+}
+
+
+function analyzeCenter(){
+    if(capture && capture.loadedmetadata){
+        let x = width/2;
+        let y = height/2;
+        currentColor = get(x,y);
+        console.log("analysing")
+        updateColorInfo(currentColor);
+    }
+
+}
+
+
+function updateColorInfo(color){
+    document.getElementById('color-info').textContent = `${color}`
+
+
 }
