@@ -9,7 +9,11 @@ body {
 }
 
 .info{
+    z-index:100;
     color: white;
+     top: 20px;
+    left: 20px;
+    right: 20px;
 
 }
 
