@@ -10,9 +10,9 @@ body {
 
 #info-panel {
     position: fixed;
-    top: 10px;
-    left: 10px;
-    right: 10px;
+    top: 20px;
+    left: 20px;
+    right: 20px;
     background: rgba(0, 0, 0, 0.8);
     padding: 15px;
     border-radius: 10px;
@@ -40,7 +40,7 @@ body {
     flex-shrink: 0;  /* Prevent color field from shrinking */
 }
 
-
+/* Mobile responsive */
 @media (max-width: 600px) {
     #info-panel {
         padding: 10px;
