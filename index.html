@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Color Analyzer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+        
+        #info-panel {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 14px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        
+        #controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+        
+        .button {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            touch-action: manipulation;
+            user-select: none;
+        }
+        
+        .button:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.7);
+        }
+        
+        #color-display {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid white;
+            margin: 5px 0;
+        }
+        
+        .color-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+        
+        #crosshair {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            border: 2px solid white;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 99;
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.5);
+        }
+        
+        #status {
+            text-align: center;
+            font-size: 12px;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="info-panel">
+        <div class="color-info">
+            <div id="color-display"></div>
+            <div>
+                <div id="rgb-values">R: 0, G: 0, B: 0</div>
+                <div id="hex-value">#000000</div>
+            </div>
+        </div>
+        <div id="hsl-values">H: 0°, S: 0%, L: 0%</div>
+        <div id="status">Tap screen to analyze color</div>
+    </div>
+    
+    <div id="crosshair"></div>
+    
+    <div id="controls">
+        <button class="button" onclick="switchCamera()">📱 Flip</button>
+        <button class="button" onclick="freezeFrame()">📸 Freeze</button>
+        <button class="button" onclick="toggleAnalysis()">⏸️ Pause</button>
+    </div>
+
+    <script>
+        let capture;
+        let isRearCamera = true;
+        let analyzing = true;
+        let frozen = false;
+        let frozenImage;
+        let currentColor;
+        
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            startCamera();
+            
+            // Handle touch events for color picking
+            canvas.addEventListener('touchstart', handleTouch);
+            canvas.addEventListener('click', handleClick);
+        }
+        
+        function startCamera() {
+            if (capture) {
+                capture.remove();
+            }
+            
+            const constraints = {
+                video: {
+                    facingMode: isRearCamera ? "environment" : "user",
+                    width: { ideal: windowWidth },
+                    height: { ideal: windowHeight }
+                }
+            };
+            
+            capture = createCapture(constraints, () => {
+                document.getElementById('status').textContent = 'Camera ready! Tap to analyze colors';
+            });
+            capture.hide();
+        }
+        
+        function draw() {
+            if (capture && capture.loadedmetadata) {
+                if (frozen && frozenImage) {
+                    image(frozenImage, 0, 0, width, height);
+                } else {
+                    image(capture, 0, 0, width, height);
+                }
+                
+                if (analyzing) {
+                    analyzeCenter();
+                }
+            } else {
+                background(0);
+                fill(255);
+                textAlign(CENTER, CENTER);
+                text('Loading camera...', width/2, height/2);
+            }
+        }
+        
+        function analyzeCenter() {
+            if (capture && capture.loadedmetadata) {
+                // Sample from the center of the screen
+                let x = width / 2;
+                let y = height / 2;
+                currentColor = get(x, y);
+                updateColorInfo(currentColor);
+            }
+        }
+        
+        function analyzeColorAt(x, y) {
+            if (capture && capture.loadedmetadata) {
+                currentColor = get(x, y);
+                updateColorInfo(currentColor);
+                
+                // Show temporary circle at touched location
+                push();
+                stroke(255);
+                strokeWeight(3);
+                noFill();
+                circle(x, y, 60);
+                pop();
+            }
+        }
+        
+        function updateColorInfo(color) {
+            const r = red(color);
+            const g = green(color);
+            const b = blue(color);
+            const h = hue(color);
+            const s = saturation(color);
+            const l = lightness(color);
+            
+            // Update display
+            document.getElementById('color-display').style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+            document.getElementById('rgb-values').textContent = `R: ${Math.round(r)}, G: ${Math.round(g)}, B: ${Math.round(b)}`;
+            document.getElementById('hex-value').textContent = rgbToHex(r, g, b);
+            document.getElementById('hsl-values').textContent = `H: ${Math.round(h)}°, S: ${Math.round(s)}%, L: ${Math.round(l)}%`;
+        }
+        
+        function rgbToHex(r, g, b) {
+            return "#" + ((1 << 24) + (Math.round(r) << 16) + (Math.round(g) << 8) + Math.round(b)).toString(16).slice(1);
+        }
+        
+        function handleTouch(event) {
+            event.preventDefault();
+            const touch = event.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const x = (touch.clientX - rect.left) * (width / rect.width);
+            const y = (touch.clientY - rect.top) * (height / rect.height);
+            analyzeColorAt(x, y);
+        }
+        
+        function handleClick(event) {
+            const rect = canvas.getBoundingClientRect();
+            const x = (event.clientX - rect.left) * (width / rect.width);
+            const y = (event.clientY - rect.top) * (height / rect.height);
+            analyzeColorAt(x, y);
+        }
+        
+        function switchCamera() {
+            isRearCamera = !isRearCamera;
+            startCamera();
+            document.getElementById('status').textContent = `Switched to ${isRearCamera ? 'rear' : 'front'} camera`;
+        }
+        
+        function freezeFrame() {
+            if (!frozen && capture && capture.loadedmetadata) {
+                frozenImage = capture.get();
+                frozen = true;
+                document.getElementById('status').textContent = 'Frame frozen - tap to analyze colors';
+                document.querySelector('button[onclick="freezeFrame()"]').textContent = '▶️ Live';
+            } else {
+                frozen = false;
+                frozenImage = null;
+                document.getElementById('status').textContent = 'Live camera feed';
+                document.querySelector('button[onclick="freezeFrame()"]').textContent = '📸 Freeze';
+            }
+        }
+        
+        function toggleAnalysis() {
+            analyzing = !analyzing;
+            const button = document.querySelector('button[onclick="toggleAnalysis()"]');
+            if (analyzing) {
+                button.textContent = '⏸️ Pause';
+                document.getElementById('status').textContent = 'Real-time color analysis active';
+            } else {
+                button.textContent = '▶️ Resume';
+                document.getElementById('status').textContent = 'Analysis paused - tap screen for colors';
+            }
+        }
+        
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+        
+        // Prevent zoom on double tap
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        });
+        
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        });
+    </script>
+</body>
+</html>
