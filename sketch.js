@@ -26,15 +26,15 @@ function draw(){
     //loadedmetadata is web standart property and tells us if the camera is ready on the phone
     if(capture && capture.loadedmetadata){
 
-             if (!scaleCalculated) {
-            calculateCameraScale();
-            scaleCalculated = true;
-        }
+        //      if (!scaleCalculated) {
+        //     calculateCameraScale();
+        //     scaleCalculated = true;
+        // }
         
         // Draw camera with proper scaling
         push();
-        translate(camOffsetX, camOffsetY);
-        scale(camScale);
+        // translate(camOffsetX, camOffsetY);
+        // scale(camScale);
         image(capture, 0, 0, capture.width, capture.height);
         pop();
 
