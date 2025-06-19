@@ -7,7 +7,7 @@ let frozenImage;
 
 let currentColor;
 
-
+let socket;
 
 
 
@@ -51,10 +51,6 @@ function setup(){
   socket.onopen = function() {
     document.getElementById('TD-state').textContent = `Connected to TD`
   };
-
-    
-
-
 
 }
 
@@ -131,6 +127,7 @@ function showDeviceRotation(){
 
 function sendDeviceRotation(){
     if (socket.readyState === WebSocket.OPEN) {
+    document.getElementById('TD-state').textConent = `WebSocket OPEN`
     let data = {
       rotX: rotationX,
       rotY: rotationY,
@@ -213,24 +210,26 @@ function requestAccess() {
 }
 
 function connectToTouchDesigner() {
-  try {
-    // Try secure connection first
-    socket = new WebSocket('wss://localhost:9980');
-  } catch (e) {
-    try {
-      // Fallback to unsecured
-      socket = new WebSocket('ws://localhost:9980');
-    } catch (e2) {
-      console.log('Could not connect to TouchDesigner');
-      return;
-    }
-  }
+  // Start with regular WebSocket since you're on localhost
+  socket = new WebSocket('ws://localhost:9980');
   
   socket.onopen = function() {
     console.log('Connected to TouchDesigner!');
+    document.getElementById('TD-state').textContent = 'Connected to TD';
   };
   
   socket.onerror = function(error) {
     console.log('WebSocket error:', error);
+    document.getElementById('TD-state').textContent = 'Connection Failed';
+  };
+  
+  socket.onclose = function() {
+    console.log('Disconnected from TouchDesigner');
+    document.getElementById('TD-state').textContent = 'Disconnected';
+    
+    // Auto-reconnect after 3 seconds
+    setTimeout(() => {
+      connectToTouchDesigner();
+    }, 3000);
   };
 }
