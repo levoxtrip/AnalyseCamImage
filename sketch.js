@@ -45,6 +45,17 @@ function setup(){
     // text("non ios 13 device", 100, 100);
     permissionGranted = true;
   }
+
+  connectToTouchDesigner()
+
+  socket.onopen = function() {
+    document.getElementById('TD-state').textContent = `Connected to TD`
+  };
+
+    
+
+
+
 }
 
 
@@ -77,6 +88,8 @@ function draw(){
     }
 
     showDeviceRotation();
+
+    sendDeviceRotation();
 
 
     
@@ -112,8 +125,20 @@ function analyzeCenter(){
 }
 
 function showDeviceRotation(){
-    document.getElementById('device-rotation').textContent = `RotationX:${rotationX} RotationY:${rotationY}`;
+    document.getElementById('device-rotation').textContent = `RotationX:${rotationX} RotationY:${rotationY} RotationZ:${rotationZ}`;
      
+}
+
+function sendDeviceRotation(){
+    if (socket.readyState === WebSocket.OPEN) {
+    let data = {
+      rotX: rotationX,
+      rotY: rotationY,
+      rotZ: rotationZ,
+      timestamp: millis()
+    };
+    socket.send(JSON.stringify(data));
+  }
 }
 
 
@@ -185,4 +210,27 @@ function requestAccess() {
   .catch(console.error);
   
   this.remove();
+}
+
+function connectToTouchDesigner() {
+  try {
+    // Try secure connection first
+    socket = new WebSocket('wss://localhost:9980');
+  } catch (e) {
+    try {
+      // Fallback to unsecured
+      socket = new WebSocket('ws://localhost:9980');
+    } catch (e2) {
+      console.log('Could not connect to TouchDesigner');
+      return;
+    }
+  }
+  
+  socket.onopen = function() {
+    console.log('Connected to TouchDesigner!');
+  };
+  
+  socket.onerror = function(error) {
+    console.log('WebSocket error:', error);
+  };
 }
