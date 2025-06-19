@@ -16,13 +16,42 @@ let camOffsetX = 0;
 let camOffsetY = 0;
 let scaleCalculated = false;
 
+//  gyroscope code part
+let permissionGranted = false;
+
 function setup(){
     createCanvas(windowWidth,windowHeight);
     startCamera();
 
+  if (typeof(DeviceOrientationEvent) !== 'undefined' && typeof(DeviceOrientationEvent.requestPermission) === 'function') {
+    // ios 13 device
+    
+    DeviceOrientationEvent.requestPermission()
+      .catch(() => {
+        // show permission dialog only the first time
+        let button = createButton("click to allow access to sensors");
+        button.style("font-size", "24px");
+        button.center();
+        button.mousePressed( requestAccess );
+        throw error;
+      })
+      .then(() => {
+        // on any subsequent visits
+        permissionGranted = true;
+      })
+  } else {
+    // non ios 13 device
+    textSize(48);
+    // text("non ios 13 device", 100, 100);
+    permissionGranted = true;
+  }
 }
 
+
+
+
 function draw(){
+    if (!permissionGranted) return;
     //loadedmetadata is web standart property and tells us if the camera is ready on the phone
     if(capture && capture.loadedmetadata){
 
@@ -46,6 +75,8 @@ function draw(){
 
         drawCrossHair();
     }
+
+    showDeviceRotation();
 
 
     
@@ -79,6 +110,12 @@ function analyzeCenter(){
     }
 
 }
+
+function showDeviceRotation(){
+    document.getElementById('device-rotation').textContent = `RotationX:${rotationX} RotationY:${rotationY}`;
+     
+}
+
 
 
 function updateColorInfo(color){
@@ -135,4 +172,17 @@ function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
     // Recalculate scaling when window size changes
     scaleCalculated = false;
+}
+function requestAccess() {
+  DeviceOrientationEvent.requestPermission()
+    .then(response => {
+      if (response == 'granted') {
+        permissionGranted = true;
+      } else {
+        permissionGranted = false;
+      }
+    })
+  .catch(console.error);
+  
+  this.remove();
 }

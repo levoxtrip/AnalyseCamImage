@@ -18,10 +18,11 @@ body {
     z-index: 100;
     backdrop-filter: blur(10px);
     
-    /* Horizontal layout for text only */
+    /* FIXED LAYOUT - no jumping */
     display: flex;
+    justify-content: space-between;  /* Push color-field to right */
     align-items: center;
-    gap: 12px;
+    min-width: 220px;               /* Fixed minimum width */
 }
 
 .info {
@@ -29,19 +30,17 @@ body {
     font-size: 14px;
     font-weight: 500;
     line-height: 1.2;
+    font-family: monospace;         /* Fixed-width font prevents jumping */
+    min-width: 140px;              /* Fixed width for RGB text */
 }
 
 .color-field {
-    position: fixed;
-    top: 10px;          /* Match info panel top */
-    right: 10px;        /* Fixed to top-right */
+    /* REMOVE all position: fixed properties */
     width: 35px;
     height: 35px;
     border: 2px solid white;
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.9);  /* Same background as panel */
-    backdrop-filter: blur(10px);
-    z-index: 101;       /* Above info panel */
+    flex-shrink: 0;                /* Don't shrink */
 }
 
 /* General mobile responsive */
@@ -50,17 +49,15 @@ body {
         top: 8px;
         margin: 0 8px;
         padding: 10px;
-        gap: 10px;
-        background: rgba(0, 0, 0, 0.95);
+        min-width: 180px;
     }
     
     .info {
         font-size: 13px;
+        min-width: 120px;
     }
     
     .color-field {
-        top: 8px;           /* Match info panel */
-        right: 8px;
         width: 32px;
         height: 32px;
     }
@@ -72,17 +69,16 @@ body {
         top: 5px;
         margin: 0 5px;
         padding: 8px;
-        gap: 8px;
+        min-width: 160px;
     }
     
     .info {
         font-size: 12px;
         font-weight: 600;
+        min-width: 110px;
     }
     
     .color-field {
-        top: 5px;           /* Match info panel */
-        right: 5px;
         width: 28px;
         height: 28px;
         border-width: 2px;
@@ -95,17 +91,16 @@ body {
         top: 3px;
         margin: 0 3px;
         padding: 6px;
-        gap: 6px;
+        min-width: 140px;
     }
     
     .info {
         font-size: 11px;
         font-weight: bold;
+        min-width: 100px;
     }
     
     .color-field {
-        top: 3px;
-        right: 3px;
         width: 24px;
         height: 24px;
     }
