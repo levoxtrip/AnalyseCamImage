@@ -127,25 +127,29 @@ function showDeviceRotation(){
 }
 
 function sendDeviceData(){
-    if (socket.readyState === WebSocket.OPEN) {
-    document.getElementById('TD-state').textConent = `WebSocket OPEN`
+  if (socket.readyState === WebSocket.OPEN) {
+    document.getElementById('TD-state').textContent = `WebSocket OPEN`;
 
-
-       if (!currentColor || currentColor.length < 4) {
-      // fallback color, e.g. black with full opacity
-      currentColor = [0, 0, 0, 255];
+    if (!currentColor) {
+      currentColor = color(0, 0, 0, 255); // fallback black color (p5.Color)
     }
+
+    // Extract RGBA from p5.Color object
+    let r = red(currentColor);
+    let g = green(currentColor);
+    let b = blue(currentColor);
+    let a = alpha(currentColor);
 
     let data = {
       rotX: rotationX,
       rotY: rotationY,
       rotZ: rotationZ,
       color: {
-      r: currentColor[0],
-      g: currentColor[1],
-      b: currentColor[2],
-      a: currentColor[3]
-    },
+        r: Math.round(r),
+        g: Math.round(g),
+        b: Math.round(b),
+        a: Math.round(a)
+      },
       timestamp: millis()
     };
     socket.send(JSON.stringify(data));
