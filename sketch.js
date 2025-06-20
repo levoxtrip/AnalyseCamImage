@@ -130,21 +130,11 @@ function sendDeviceData(){
   if (socket.readyState === WebSocket.OPEN) {
     document.getElementById('TD-state').textContent = `WebSocket OPEN`;
 
-    if (!currentColor) {
-      currentColor = color(0, 0, 0, 255); // fallback black color (p5.Color)
-    }
-
-    // Extract RGBA from p5.Color object
-    let r = red(currentColor);
-    let g = green(currentColor);
-    let b = blue(currentColor);
-    let a = alpha(currentColor);
-
     let data = {
       rotX: rotationX,
       rotY: rotationY,
       rotZ: rotationZ,
-      color: `${r} ${g} ${b} ${a}`,
+
       timestamp: millis()
     };
     socket.send(JSON.stringify(data));
