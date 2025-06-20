@@ -81,11 +81,13 @@ function draw(){
 
 
         drawCrossHair();
+
+        showDeviceRotation();
+
+      sendDeviceData();
     }
 
-    showDeviceRotation();
 
-    sendDeviceData();
 
 
     
