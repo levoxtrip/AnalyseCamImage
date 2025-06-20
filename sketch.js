@@ -85,7 +85,7 @@ function draw(){
 
     showDeviceRotation();
 
-    sendDeviceRotation();
+    sendDeviceData();
 
 
     
@@ -114,7 +114,6 @@ function analyzeCenter(){
         let x = width/2;
         let y = height/2;
         currentColor = get(x,y);
-        console.log("analysing")
         updateColorInfo(currentColor);
     }
 
@@ -125,13 +124,14 @@ function showDeviceRotation(){
      
 }
 
-function sendDeviceRotation(){
+function sendDeviceData(){
     if (socket.readyState === WebSocket.OPEN) {
     document.getElementById('TD-state').textConent = `WebSocket OPEN`
     let data = {
       rotX: rotationX,
       rotY: rotationY,
       rotZ: rotationZ,
+      color: currentColor,
       timestamp: millis()
     };
     socket.send(JSON.stringify(data));
