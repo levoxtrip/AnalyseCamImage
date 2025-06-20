@@ -129,6 +129,13 @@ function showDeviceRotation(){
 function sendDeviceData(){
     if (socket.readyState === WebSocket.OPEN) {
     document.getElementById('TD-state').textConent = `WebSocket OPEN`
+
+
+       if (!currentColor || currentColor.length < 4) {
+      // fallback color, e.g. black with full opacity
+      currentColor = [0, 0, 0, 255];
+    }
+
     let data = {
       rotX: rotationX,
       rotY: rotationY,
