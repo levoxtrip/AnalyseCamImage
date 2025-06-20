@@ -211,7 +211,7 @@ function requestAccess() {
 
 function connectToTouchDesigner() {
   // Start with regular WebSocket since you're on localhost
-  socket = new WebSocket('wss://hx-web-extra-657e6f19865a.herokuapp.com');
+  socket = new WebSocket('wss://hx-web-extra-657e6f19865a.herokuapp.com:8080');
   
   socket.onopen = function() {
     console.log('Connected to TouchDesigner!');
