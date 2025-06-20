@@ -133,7 +133,12 @@ function sendDeviceData(){
       rotX: rotationX,
       rotY: rotationY,
       rotZ: rotationZ,
-      color: currentColor,
+      color: {
+      r: currentColor[0],
+      g: currentColor[1],
+      b: currentColor[2],
+      a: currentColor[3]
+    },
       timestamp: millis()
     };
     socket.send(JSON.stringify(data));
