@@ -9,7 +9,7 @@ let currentColor;
 
 let socket;
 
-
+let deviceId;
 
 let camScale = 1;
 let camOffsetX = 0;
@@ -21,7 +21,9 @@ let permissionGranted = false;
 
 function setup(){
     createCanvas(windowWidth,windowHeight);
+    deviceId = 'device_' + Math.random().toString(36).substr(2, 9);
     startCamera();
+
 
   if (typeof(DeviceOrientationEvent) !== 'undefined' && typeof(DeviceOrientationEvent.requestPermission) === 'function') {
     // ios 13 device
@@ -128,7 +130,7 @@ function showDeviceRotation(){
 }
 
 function showDeviceAcceleration(){
-    document.getElementById('device-accel').textContent = `RotationX:${rotationX} RotationY:${rotationY} RotationZ:${rotationZ}`;
+    document.getElementById('device-accel').textContent = `AccelX:${accelerationX} AccelY:${accelerationY} AccelZ:${accelerationZ}`;
      
 }
 
@@ -138,6 +140,7 @@ function sendDeviceData(){
     document.getElementById('TD-state').textContent = `WebSocket OPEN`;
 
     let data = {
+      id: deviceId,
       rotX: accelerationX,
       rotY: accelerationY,
       rotZ: accelerationZ,
