@@ -4,11 +4,8 @@ let analyzing = true;
 let frozen = false;
 
 let frozenImage;
-
 let currentColor;
-
 let socket;
-
 let deviceId;
 
 let camScale = 1;
@@ -16,7 +13,7 @@ let camOffsetX = 0;
 let camOffsetY = 0;
 let scaleCalculated = false;
 
-//  gyroscope code part
+// gyroscope code part
 let permissionGranted = false;
 
 function setup(){
@@ -24,77 +21,55 @@ function setup(){
     deviceId = 'device_' + Math.random().toString(36).substr(2, 9);
     startCamera();
 
-
-  if (typeof(DeviceOrientationEvent) !== 'undefined' && typeof(DeviceOrientationEvent.requestPermission) === 'function') {
-    // ios 13 device
-    
-    DeviceOrientationEvent.requestPermission()
-      .catch(() => {
-        // show permission dialog only the first time
-        let button = createButton("click to allow access to sensors");
-        button.style("font-size", "24px");
-        button.center();
-        button.mousePressed( requestAccess );
-        throw error;
-      })
-      .then(() => {
-        // on any subsequent visits
+    if (typeof(DeviceOrientationEvent) !== 'undefined' && typeof(DeviceOrientationEvent.requestPermission) === 'function') {
+        // iOS 13 device
+        DeviceOrientationEvent.requestPermission()
+            .catch((error) => {  // Fixed: added error parameter
+                // show permission dialog only the first time
+                let button = createButton("click to allow access to sensors");
+                button.style("font-size", "24px");
+                button.center();
+                button.mousePressed(requestAccess);
+                // Removed throw error since it's handled
+            })
+            .then(() => {
+                // on any subsequent visits
+                permissionGranted = true;
+            })
+    } else {
+        // non iOS 13 device
         permissionGranted = true;
-      })
-  } else {
-    // non ios 13 device
-    textSize(48);
-    // text("non ios 13 device", 100, 100);
-    permissionGranted = true;
-  }
+    }
 
-  connectToTouchDesigner()
+    connectToTouchDesigner()
 
-  socket.onopen = function() {
-    document.getElementById('TD-state').textContent = `Connected to TD`
-  };
-
+    socket.onopen = function() {
+        document.getElementById('TD-state').textContent = `Connected to TD`
+    };
 }
-
-
-
 
 function draw(){
     if (!permissionGranted) return;
-    //loadedmetadata is web standart property and tells us if the camera is ready on the phone
+    
+    // loadedmetadata is web standard property and tells us if the camera is ready on the phone
     if(capture && capture.loadedmetadata){
-
-        //      if (!scaleCalculated) {
-        //     calculateCameraScale();
-        //     scaleCalculated = true;
-        // }
-        
-        // Draw camera with proper scaling
+        // Draw camera
         push();
-        // translate(camOffsetX, camOffsetY);
-        // scale(camScale);
         image(capture, 0, 0, capture.width, capture.height);
         pop();
-
     }
 
     if(analyzing){
         analyzeCenter();
-
-
         drawCrossHair();
-        drawTouch();
-        //showDeviceRotation();
-        // showDeviceAcceleration();
-        showDeviceTouch();
-
-      sendDeviceData();
+        showDeviceAcceleration();
+        sendDeviceData();
     }
 
-
-
-
-    
+    // Only draw touch indicator if there's an active touch
+    if (touches.length > 0 || (typeof touchX !== 'undefined' && typeof touchY !== 'undefined')) {
+        drawTouch();
+    }
 }
 
 function startCamera(){
@@ -109,11 +84,10 @@ function startCamera(){
     }
 
     capture = createCapture(constraints, () => {
-        // document.getElementById('status').textContent = 'Camera can be used'
+        // Camera ready callback
     });
     capture.hide();
 }
-
 
 function analyzeCenter(){
     if(capture && capture.loadedmetadata){
@@ -122,141 +96,146 @@ function analyzeCenter(){
         currentColor = get(x,y);
         updateColorInfo(currentColor);
     }
-
 }
 
 function showDeviceRotation(){
-    document.getElementById('device-rotation').textContent = `RotationX:${rotationX} RotationY:${rotationY} RotationZ:${rotationZ}`;
-     
+    const rotX = typeof rotationX !== 'undefined' ? rotationX.toFixed(2) : 'N/A';
+    const rotY = typeof rotationY !== 'undefined' ? rotationY.toFixed(2) : 'N/A';
+    const rotZ = typeof rotationZ !== 'undefined' ? rotationZ.toFixed(2) : 'N/A';
+    document.getElementById('device-rotation').textContent = `RotationX:${rotX} RotationY:${rotY} RotationZ:${rotZ}`;
 }
 
-function showDeviceAcceleration(){
-    document.getElementById('device-accel').textContent = `AccelX:${accelerationX} AccelY:${accelerationY} AccelZ:${accelerationZ}`;
-     
+function showDeviceAcceleration(){  // Fixed: removed duplicate
+    const accelX = typeof accelerationX !== 'undefined' ? accelerationX.toFixed(2) : 'N/A';
+    const accelY = typeof accelerationY !== 'undefined' ? accelerationY.toFixed(2) : 'N/A';
+    const accelZ = typeof accelerationZ !== 'undefined' ? accelerationZ.toFixed(2) : 'N/A';
+    document.getElementById('device-accel').textContent = `AccelX:${accelX} AccelY:${accelY} AccelZ:${accelZ}`;
 }
+
 function showDeviceTouch(){
-    document.getElementById('device-touch').textContent = `TouchX:${touchX} TouchY:${touchY}`;
-     
+    const tX = typeof touchX !== 'undefined' ? touchX.toFixed(0) : 'N/A';
+    const tY = typeof touchY !== 'undefined' ? touchY.toFixed(0) : 'N/A';
+    document.getElementById('device-touch').textContent = `TouchX:${tX} TouchY:${tY}`;
 }
-
 
 function sendDeviceData(){
-  if (socket.readyState === WebSocket.OPEN) {
-    document.getElementById('TD-state').textContent = `WebSocket OPEN`;
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        document.getElementById('TD-state').textContent = `WebSocket OPEN`;
 
-    let data = {
-      id: deviceId,
-      rotX: touchX,
-      rotY: touchY,
-      color: currentColor,
-      timestamp: millis()
-    };
-    socket.send(JSON.stringify(data));
-  }
+        let data = {
+            id: deviceId,
+            rotX: (typeof rotationX !== 'undefined') ? rotationX : 0,
+            rotY: (typeof rotationY !== 'undefined') ? rotationY : 0,
+            rotZ: (typeof rotationZ !== 'undefined') ? rotationZ : 0,
+            touchX: (typeof touchX !== 'undefined') ? touchX : 0,
+            touchY: (typeof touchY !== 'undefined') ? touchY : 0,
+            color: currentColor || [0, 0, 0],
+            timestamp: millis()
+        };
+        socket.send(JSON.stringify(data));
+    }
 }
 
-
-
 function updateColorInfo(color){
+    if (!color) return;
+    
     const r = red(color);
     const g = green(color);
     const b = blue(color);
-     document.getElementById('color-info').textContent = `R: ${Math.round(r)}, G: ${Math.round(g)}, B: ${Math.round(b)}`;
-     document.getElementById('color-field').style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
-
+    document.getElementById('color-info').textContent = `R: ${Math.round(r)}, G: ${Math.round(g)}, B: ${Math.round(b)}`;
+    document.getElementById('color-field').style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
 }
 
 function drawCrossHair(){
-
     push();
     stroke(255);
     strokeWeight(2);
     noFill();
 
-
-     let centerX = width / 2;
+    let centerX = width / 2;
     let centerY = height / 2;
     
     circle(centerX, centerY, 30);
-
+    pop();
 }
 
 function drawTouch(){
-     push();
-    stroke(255);
-    strokeWeight(6);
-    noFill();
-
-    
-    circle(touchX, touchY, 80);
-}
-
-
-
-function calculateCameraScale() {
-    if (capture && capture.loadedmetadata) {
-        const camWidth = capture.width;
-        const camHeight = capture.height;
-        const canvasWidth = width;
-        const canvasHeight = height;
+    // Use touches array for more reliable touch detection
+    if (touches.length > 0) {
+        push();
+        stroke(255);
+        strokeWeight(6);
+        noFill();
         
-        // Calculate scale to cover the entire screen while maintaining aspect ratio
-        const scaleX = canvasWidth / camWidth;
-        const scaleY = canvasHeight / camHeight;
+        // Draw circle at first touch point
+        circle(touches[0].x, touches[0].y, 80);
+        pop();
+    } else if (typeof touchX !== 'undefined' && typeof touchY !== 'undefined') {
+        push();
+        stroke(255);
+        strokeWeight(6);
+        noFill();
         
-        // Use the larger scale to ensure full coverage (crop if needed)
-        camScale = max(scaleX, scaleY);
-        
-        // Calculate offsets to center the image
-        const scaledWidth = camWidth * camScale;
-        const scaledHeight = camHeight * camScale;
-        
-        camOffsetX = (canvasWidth - scaledWidth) / 2;
-        camOffsetY = (canvasHeight - scaledHeight) / 2;
+        circle(touchX, touchY, 80);
+        pop();
     }
 }
 
-
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
-    // Recalculate scaling when window size changes
     scaleCalculated = false;
 }
+
+// Touch event handlers for better touch detection
+function touchStarted() {
+    showDeviceTouch();
+    return false; // Prevent default behavior
+}
+
+function touchMoved() {
+    showDeviceTouch();
+    return false; // Prevent default behavior
+}
+
 function requestAccess() {
-  DeviceOrientationEvent.requestPermission()
-    .then(response => {
-      if (response == 'granted') {
-        permissionGranted = true;
-      } else {
-        permissionGranted = false;
-      }
-    })
-  .catch(console.error);
-  
-  this.remove();
+    DeviceOrientationEvent.requestPermission()
+        .then(response => {
+            if (response == 'granted') {
+                permissionGranted = true;
+            } else {
+                permissionGranted = false;
+            }
+        })
+        .catch(console.error);
+    
+    this.remove();
 }
 
 function connectToTouchDesigner() {
-  // Start with regular WebSocket since you're on localhost
-  socket = new WebSocket('wss://hx-web-extra-657e6f19865a.herokuapp.com/');
-  
-  socket.onopen = function() {
-    console.log('Connected to TouchDesigner!');
-    document.getElementById('TD-state').textContent = 'Connected to TD';
-  };
-  
-  socket.onerror = function(error) {
-    console.log('WebSocket error:', error);
-    document.getElementById('TD-state').textContent = 'Connection Failed';
-  };
-  
-  socket.onclose = function() {
-    console.log('Disconnected from TouchDesigner');
-    document.getElementById('TD-state').textContent = 'Disconnected';
-    
-    // Auto-reconnect after 3 seconds
-    setTimeout(() => {
-      connectToTouchDesigner();
-    }, 3000);
-  };
+    try {
+        socket = new WebSocket('wss://hx-web-extra-657e6f19865a.herokuapp.com/');
+        
+        socket.onopen = function() {
+            console.log('Connected to TouchDesigner!');
+            document.getElementById('TD-state').textContent = 'Connected to TD';
+        };
+        
+        socket.onerror = function(error) {
+            console.log('WebSocket error:', error);
+            document.getElementById('TD-state').textContent = 'Connection Failed';
+        };
+        
+        socket.onclose = function() {
+            console.log('Disconnected from TouchDesigner');
+            document.getElementById('TD-state').textContent = 'Disconnected';
+            
+            // Auto-reconnect after 3 seconds
+            setTimeout(() => {
+                connectToTouchDesigner();
+            }, 3000);
+        };
+    } catch (error) {
+        console.log('Failed to create WebSocket:', error);
+        document.getElementById('TD-state').textContent = 'Connection Failed';
+    }
 }
