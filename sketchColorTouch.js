@@ -83,9 +83,10 @@ function draw(){
 
 
         drawCrossHair();
-
+        drawTouch();
         //showDeviceRotation();
-        showDeviceAcceleration();
+        // showDeviceAcceleration();
+        showDeviceTouch();
 
       sendDeviceData();
     }
@@ -135,10 +136,6 @@ function showDeviceAcceleration(){
 }
 function showDeviceTouch(){
     document.getElementById('device-touch').textContent = `TouchX:${touchX} TouchY:${touchY}`;
-     
-}
-function showDeviceAcceleration(){
-    document.getElementById('device-accel').textContent = `AccelX:${accelerationX} AccelY:${accelerationY} AccelZ:${accelerationZ}`;
      
 }
 
